@@ -29,6 +29,10 @@ if file_fs ~= fs
     raw_audio = resample(raw_audio, fs, file_fs); % Force 48000 Hz audio adjustment
 end
 
+t = (0:length(raw_audio) - 1)' / fs; 
+noise = 0.3 * sin(2*pi*23000*t); % 23 KHz tone
+raw_audio = raw_audio + noise; % Add noise to raw audio since recording was not enough
+
 filtered_audio = filter(b, a, raw_audio); % Filter noisy audio
 
 figure; 
@@ -49,24 +53,24 @@ title('Audio After Filtering');
 ylim([-1,1]); % -1 to 1 Y-axis
 grid on; % Enable grid
 
-auido_length = length(raw_audio); % Plot length of audio file
-height = linspace(0, fs / 2, floor(audio_length / 2) + 1);
+audio_length = length(raw_audio); % Plot length of audio file
+dft = linspace(0, fs / 2, floor(audio_length / 2) + 1);
 
 raw_dft = abs(fft(raw_audio)); 
-raw_dft = raw_dft(1: length(height)); 
+raw_dft = raw_dft(1: length(dft)); 
 
 filtered_dft = abs(fft(filtered_audio)); 
-filtered_dft = filtered_dft(1: length(height)); 
+filtered_dft = filtered_dft(1: length(dft)); 
 
 figure; 
 subplot(2,1,1);
-plot(filtered, 20*log10(raw_dft + eps), 'Color' , '#FFA500');
+plot(dft, 20*log10(raw_dft + eps), 'Color' , '#FFA500');
 title('DFT Before Filtering');
 xlim([0 fs / 2]);
 grid on;
 
 subplot(2,1,2);
-plot(height, 20*log10(filtered_dft + eps), 'Color', '#0000FF');
+plot(dft, 20*log10(filtered_dft + eps), 'Color', '#0000FF');
 title('DFT After Filtering');
 xlim([0 fs / 2]);
 grid on;
