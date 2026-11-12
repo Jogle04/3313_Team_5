@@ -16,11 +16,12 @@ stopband = 23500 / (fs/2); % Stopband edge
 num_order = 10; % Numerator order
 den_order = 10; % Denominator order
 
-f_points = [0, passband, stopband, 1.0]; % Frequency points
+f_points = [0, passband, 23500 / (fs / 2), 1.0]; % Frequency points
+f_edges = [0, passband, 23500 / (fs / 2), 1.0]; % Frequency edges
 mag = [1,1,0,0]; % Magnitude
 weights = [1,1,10,10]; 
 
-[b,a] = iirlpnorm(num_order, den_order, f_points, mag, weights); % Filter using least p-norm
+[b,a] = iirlpnorm(num_order, den_order, f_points, f_edges, mag, weights); % Filter using least p-norm
 
 [raw_audio, file_fs] = audioread('Recording.m4a'); % Recorded audio, put the audio file name here for testing
 
@@ -48,11 +49,11 @@ title('Audio After Filtering');
 ylim([-1,1]); % -1 to 1 Y-axis
 grid on; % Enable grid
 
-length = length(raw_audio); % Plot length of audio file
-height = linspace(0, fs / 2, floor(length / 2) + 1);
+auido_length = length(raw_audio); % Plot length of audio file
+height = linspace(0, fs / 2, floor(audio_length / 2) + 1);
 
 raw_dft = abs(fft(raw_audio)); 
-rwa_dft = raw_dft(1: length(height)); 
+raw_dft = raw_dft(1: length(height)); 
 
 filtered_dft = abs(fft(filtered_audio)); 
 filtered_dft = filtered_dft(1: length(height)); 
@@ -64,7 +65,7 @@ title('DFT Before Filtering');
 xlim([0 fs / 2]);
 grid on;
 
-subplot(2,1,1);
+subplot(2,1,2);
 plot(height, 20*log10(filtered_dft + eps), 'Color', '#0000FF');
 title('DFT After Filtering');
 xlim([0 fs / 2]);
