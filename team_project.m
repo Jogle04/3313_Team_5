@@ -13,11 +13,16 @@ fc = 22000; % Cutoff frequency
 fs = 48000; % Sampling rate
 passband = fc / (fs / 2); % Passband edge
 stopband = 23500 / (fs/2); % Stopband edge
+num_order = 10; % Numerator order
+den_order = 10; % Denominator order
 
-[num_analog, den_analog] = butter(order / 2, 2*pi*fc, 's'); % Analog Butterworth
-[b,a] = impinvar(num_analog, den_analog, fs); % Convert A/D through impulse invariance
+f_points = [0, passband, stopband, 1.0]; % Frequency points
+mag = [1,1,0,0]; % Magnitude
+weights = [1,1,10,10]; 
 
-[raw_audio, file_fs] = audioread('put_audio_file_here.wav'); % Recorded audio, put the audio file name here for testing
+[b,a] = iirlpnorm(num_order, den_order, f_points, mag, weights); % Filter using least p-norm
+
+[raw_audio, file_fs] = audioread('Recording.m4a'); % Recorded audio, put the audio file name here for testing
 
 if file_fs ~= fs
     raw_audio = resample(raw_audio, fs, file_fs); % Force 48000 Hz audio adjustment
